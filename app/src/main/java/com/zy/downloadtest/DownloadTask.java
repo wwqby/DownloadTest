@@ -38,6 +38,8 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> implements
 
 //    默认的下载文件名
     private String fileName="/fyq_new_version.apk";
+    private Call call;
+    private File file;
 
     public DownloadTask(DownloadListener listener) {
         mListener = listener;
@@ -47,7 +49,7 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> implements
     protected Integer doInBackground(String... strings) {
         InputStream is = null;
         RandomAccessFile savedFile = null;
-        File file = null;
+        file = null;
         try {
 //        记录已下载长度
 //            long downloadLength = 0;
@@ -73,7 +75,8 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> implements
             Request request = new Request.Builder()
                     .url(downloadUrl)
                     .build();
-            Response response = client.newCall(request).execute();
+            call=client.newCall(request);
+            Response response = call.execute();
             if (response != null&&response.isSuccessful()&&response.body()!=null) {
                 String description=response.header("Content-Disposition");
                 if (description!=null){
@@ -124,7 +127,14 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> implements
                 e.printStackTrace();
             }
         }
+        if (isCanceled){
+            return TYPE_CANCELED;
+        }
         return TYPE_FAILED;
+    }
+
+    public String getFilePath(){
+        return file.getPath();
     }
 
     @Override
@@ -170,6 +180,9 @@ public class DownloadTask extends AsyncTask<String, Integer, Integer> implements
      */
     public void cancelDownload(){
         isCanceled =true;
+        if (call!=null){
+            call.cancel();
+        }
     }
 
 

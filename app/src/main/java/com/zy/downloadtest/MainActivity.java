@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
+            if (mBind!=null){
+                mBind.cancelDownload();
+            }
         }
     };
 
@@ -134,5 +136,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+        if (mBind!=null){
+            mBind.cancelDownload();
+        }
     }
 }
